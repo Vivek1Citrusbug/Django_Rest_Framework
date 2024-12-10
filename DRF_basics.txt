@@ -115,3 +115,7 @@
 
 ### **ModelViewSet Example**
 The `ModelViewSet` is ideal for managing model data and provides ready-to-use actions for CRUD operations.
+
+authentication and authorizations :
+authentication is always run before all the code of view to check authnticity to perform perticular task.
+basic authentication, sssionsauth, token authe,remoteuserauthe,custom authentication.
