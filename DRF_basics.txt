@@ -119,3 +119,62 @@ The `ModelViewSet` is ideal for managing model data and provides ready-to-use ac
 authentication and authorizations :
 authentication is always run before all the code of view to check authnticity to perform perticular task.
 basic authentication, sssionsauth, token authe,remoteuserauthe,custom authentication.
+
+
+##  Authentication Methods
+
+### Basic Authentication
+- Not suitable for production.
+
+### Session Authentication
+- Uses Django's default session backend for authentication.
+- Appropriate for AJAX clients running in the same session context.
+- On successful authentication:
+  - Provides `request.user` and `request.auth`.
+
+### Token Authentication
+- Include `rest_framework.authtoken` in `INSTALLED_APPS`.
+- On successful authentication:
+  - `request.user` will hold the authenticated user.
+  - `request.auth` will hold an instance of `rest_framework.authtoken.models.Token`.
+- Admins can create tokens via the admin application or provide an API endpoint for users to generate tokens.
+
+### Custom Authentication
+- Implement custom authentication classes to meet specific requirements.
+
+### JWT Authentication
+- Does not require a database to validate tokens, unlike regular token-based authentication.
+
+---
+
+##  Permissions
+
+### Built-in Permissions
+- `AllowAny`
+- `IsAuthenticated`
+- `IsAdminUser`
+- `IsAuthenticatedOrReadOnly`
+- `DjangoModelPermissions`
+- `DjangoModelPermissionsOrAnonReadOnly`
+- `DjangoObjectPermissions`
+
+### Custom Permissions
+- Implement `has_permission` or `has_object_permission` methods to define custom permissions.
+
+---
+
+##  Filters
+
+### Types of Filtering
+- **Custom Filters**: Define custom filtering logic.
+- **Generic Filtering**: Use Django Filter library for advanced filtering.
+- **Search Filters**: Enable search functionality in APIs.
+
+---
+
+##  Pagination
+
+### Types of Pagination
+- **PageNumberPagination**: Provides numbered pages.
+- **CursorPagination**: Provides `next` and `previous` cursors without arbitrary page numbers.
+
