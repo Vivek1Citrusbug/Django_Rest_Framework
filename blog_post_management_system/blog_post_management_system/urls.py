@@ -21,11 +21,19 @@ from django.conf.urls.static import static
 from . import views
 from .views import home_page
 
+from rest_framework.routers import DefaultRouter
+from blogs.views import BlogPostListingAPIView,CommentListView
+
+router = DefaultRouter()
+router.register(r'Blogs',BlogPostListingAPIView,basename='blogpost')
+
+
 urlpatterns = [
     path("",views.home_page,name = 'home_page'),
     path('admin/', admin.site.urls, name = "admin_view"),
     path("accounts/",include("accounts.urls")),
-    path("blogs/",include("blogs.urls")),
+    path("api/",include(router.urls)),
+    path("api/Blogs/<int:blog_post_id>/comments/", CommentListView.as_view(), name="comment-list"),
     path("comments/",include("comments.urls")),
     path("likes/",include("likes.urls")),
 ]
