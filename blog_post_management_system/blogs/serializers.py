@@ -17,12 +17,14 @@ class BlogPostWithComments(serializers.ModelSerializer):
 
 class BlogPostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(source='author.username', read_only=True)
-    comments = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField(method_name="comments")
+
     class Meta:
         
         model = BlogPost
         fields = ['title', 'content', 'author', 'date_published', 'comments']
         read_only_fields = ['author','date_published']  
     
-    def get_comments(self,obj):
-        return reverse('comment-list',kwargs = {'blog_post_id':obj.id},request=self.context.get('request'))
+    def comments(self,obj):
+        print("context : ",self.context)
+        return reverse('comment-list',kwargs = {'blog_post_id':obj.id}, request=self.context.get('request'))
