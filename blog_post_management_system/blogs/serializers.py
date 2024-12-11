@@ -24,15 +24,19 @@ class BlogPostLikeSerializer(serializers.ModelSerializer):
 class BlogPostDetailSerializer(serializers.ModelSerializer):
     comments = BlogPostWithComments(many = True)
     likes = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
-        fields = ['title','content','author.username','comments','likes']
+        fields = ['title','content','author','comments','likes']
         read_only_fields = ['comments','likes']
 
     def get_likes(self,obj):
         total_likes = Like.objects.filter(post = obj.id).count()
         return total_likes
+    
+    def get_author(self,obj):
+        return BlogPost.objects.get(id = obj.id).author.username
     
 class BlogPostListSerializer(serializers.ModelSerializer):
 
@@ -41,7 +45,12 @@ class BlogPostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
         fields = ['title','content','created_by']
-        read_only_fields = ['created_by']  
+        read_only_fields = ['created_by'] 
+         
+    def create(self, validated_data):
+        request = self.context.get('request')  
+        validated_data['author'] = request.user 
+        return super().create(validated_data)
     
     def get_created_by(self,obj):
         post = BlogPost.objects.get(id = obj.id)
