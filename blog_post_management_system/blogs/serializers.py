@@ -18,22 +18,24 @@ class BlogPostLikeSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = Like
-        fields = ['post','user','created_at']
-        read_only_fields = ['post','user','created_at']
+        fields = ['user','created_at']
+        read_only_fields = ['user','created_at']
 
 class BlogPostDetailSerializer(serializers.ModelSerializer):
+    #used nested serializer for comments.
     comments = BlogPostWithComments(many = True)
-    likes = serializers.SerializerMethodField()
+    # likes = serializers.SerializerMethodField()
+    likes = BlogPostLikeSerializer(many = True)
     author = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
-        fields = ['title','content','author','comments','likes']
+        fields = ['title','content','author','likes','comments']
         read_only_fields = ['comments','likes']
 
-    def get_likes(self,obj):
-        total_likes = Like.objects.filter(post = obj.id).count()
-        return total_likes
+    # def get_likes(self,obj):
+    #     total_likes = Like.objects.filter(post = obj.id).count()
+    #     return total_likes
     
     def get_author(self,obj):
         return BlogPost.objects.get(id = obj.id).author.username
