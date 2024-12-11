@@ -14,7 +14,7 @@ from comments.models import UserComments
 from .forms import BlogPostForm
 from rest_framework.views import APIView
 from rest_framework.serializers import Serializer
-from blogs.serializers import BlogPostSerializer,BlogPostWithComments
+from blogs.serializers import BlogListSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
@@ -22,27 +22,30 @@ from rest_framework.generics import ListAPIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter
-from blogs.pagination import MyPaginator
+from blogs.general import MyPaginator
 
 class BlogPostListingAPIView(ModelViewSet):
-    queryset = BlogPost.objects.all()
-    serializer_class = BlogPostSerializer
+    serializer_class = BlogListSerializer
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
-    filter_backends = [OrderingFilter]
-    ordering_fields = ['date_published']
-    pagination_class = MyPaginator
+    # filter_backends = [OrderingFilter]
+    # ordering_fields = ['likes']
+    # pagination_class = MyPaginator   # Used custom pagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-class CommentListAPIView(ListAPIView):
-    serializer_class = BlogPostWithComments
-
     def get_queryset(self):
-        blog_post_id = self.kwargs['blog_post_id']
-        return UserComments.objects.filter(post_id=blog_post_id)
+        return BlogPost.objects.all()
     
+# class CommentListAPIView(ListAPIView):
+#     serializer_class = BlogPostWithComments
+
+#     def get_queryset(self):
+#         blog_post_id = self.kwargs['blog_post_id']
+#         return UserComments.objects.filter(post_id=blog_post_id)
+    
+
 class BlogPostListingView(LoginRequiredMixin, ListView):
     """This view is used to list all the blogs"""
 

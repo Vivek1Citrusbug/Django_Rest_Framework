@@ -12,4 +12,4 @@ class BlogPost(models.Model):
     likes_count = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     
     def __str__(self):
-        return self.title
+        return f"Create by : {self.author} : {self.author.email} on {self.date_published}"
