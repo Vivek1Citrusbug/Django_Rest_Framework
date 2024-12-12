@@ -3,6 +3,7 @@ from blogs.models import BlogPost
 from comments.models import UserComments
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
+from likes.models import Like
 
 class BlogPostWithComments(serializers.ModelSerializer):
     
@@ -13,18 +14,48 @@ class BlogPostWithComments(serializers.ModelSerializer):
         fields = ['user_name','content','date_posted']
         read_only_fields = ['user_name','date_posted']
 
+class BlogPostLikeSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = Like
+        fields = ['user','created_at']
+        read_only_fields = ['user','created_at']
 
-
-class BlogPostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(source='author.username', read_only=True)
-    comments = serializers.SerializerMethodField(method_name="comments")
+class BlogPostDetailSerializer(serializers.ModelSerializer):
+    #used nested serializer for comments.
+    comments = BlogPostWithComments(many = True)
+    # likes = serializers.SerializerMethodField()
+    likes = BlogPostLikeSerializer(many = True)
+    author = serializers.SerializerMethodField()
 
     class Meta:
-        
         model = BlogPost
-        fields = ['title', 'content', 'author', 'date_published', 'comments']
-        read_only_fields = ['author','date_published']  
+        fields = ['title','content','author','likes','comments']
+        read_only_fields = ['comments','likes']
+
+    # def get_likes(self,obj):
+    #     total_likes = Like.objects.filter(post = obj.id).count()
+    #     return total_likes
     
-    def comments(self,obj):
-        print("context : ",self.context)
-        return reverse('comment-list',kwargs = {'blog_post_id':obj.id}, request=self.context.get('request'))
+    def get_author(self,obj):
+        return BlogPost.objects.get(id = obj.id).author.username
+    
+class BlogPostListSerializer(serializers.ModelSerializer):
+
+    created_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BlogPost
+        fields = ['title','content','created_by']
+        read_only_fields = ['created_by'] 
+         
+    def create(self, validated_data):
+        request = self.context.get('request')  
+        validated_data['author'] = request.user 
+        return super().create(validated_data)
+    
+    def get_created_by(self,obj):
+        post = BlogPost.objects.get(id = obj.id)
+        return f"{post.author} : {post.author.email} On {post.date_published.strftime('%Y-%m-%d %H:%M:%S')}"
+    
+
