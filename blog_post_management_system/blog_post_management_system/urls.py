@@ -20,9 +20,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from . import views
 from .views import home_page
-
+from rest_framework_simplejwt import views as jwt_views
 from rest_framework.routers import DefaultRouter
-from blogs.views import BlogPostListingAPIView,CommentListAPIView
+from blogs.views import BlogPostListingAPIView,CommentListAPIView,CustomTokenObtainPairView
 
 router = DefaultRouter()
 router.register(r'Blogs',BlogPostListingAPIView,basename='blogpost')
@@ -36,6 +36,8 @@ urlpatterns = [
     path("likes/",include("likes.urls")),
     path("blogs/",include("blogs.urls")),
     path("api/",include(router.urls)),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path("api/Blogs/<int:blog_post_id>/comments/", CommentListAPIView.as_view(), name="comment-list"),
 ]
 
