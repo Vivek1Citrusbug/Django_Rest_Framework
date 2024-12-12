@@ -32,9 +32,6 @@ class BlogPostListingAPIView(ModelViewSet):
         if self.action in ['list','update','create','partial_update']:
             return BlogPostListSerializer
         return BlogPostDetailSerializer
-    
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
 
     def get_queryset(self):
         return BlogPost.objects.all()
@@ -46,20 +43,6 @@ class CommentListAPIView(ListAPIView):
         blog_post_id = self.kwargs['blog_post_id']
         return UserComments.objects.filter(post_id=blog_post_id)
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class BlogPostListingView(LoginRequiredMixin, ListView):
     """This view is used to list all the blogs"""
