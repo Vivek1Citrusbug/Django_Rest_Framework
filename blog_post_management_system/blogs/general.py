@@ -7,8 +7,10 @@ from rest_framework.views import exception_handler
 from http import HTTPStatus
 from typing import Any
 
+
 class MyPaginator(PageNumberPagination):
-    # Only display 10 blogs per page
+    """Custom paginator functionality"""
+
     page_size = 3
     page_size_query_param = "page_size"
     max_page_size = 50
@@ -63,8 +65,10 @@ def api_exception_handler(exc, context) -> Response:
     response = exception_handler(exc, context)
 
     if response is not None:
-    
-        http_code_to_message = {status.value: status.description for status in HTTPStatus}
+
+        http_code_to_message = {
+            status.value: status.description for status in HTTPStatus
+        }
 
         error_payload = {
             "error": {
