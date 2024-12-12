@@ -14,35 +14,67 @@ from comments.models import UserComments
 from .forms import BlogPostForm
 from rest_framework.views import APIView
 from rest_framework.serializers import Serializer
-from blogs.serializers import BlogPostLikeSerializer,BlogPostWithComments,BlogPostListSerializer,BlogPostDetailSerializer
+from blogs.serializers import (
+    BlogPostLikeSerializer,
+    BlogPostWithComments,
+    BlogPostListSerializer,
+    BlogPostDetailSerializer,
+)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListAPIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.filters import OrderingFilter
-from blogs.general import MyPaginator
+from rest_framework.filters import OrderingFilter, BaseFilterBackend
+from blogs.general import MyPaginator, MyOrderingFilter
+from blogs.serializers import CustomTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class BlogPostListingAPIView(ModelViewSet):
-    authentication_classes = [BasicAuthentication]
+    """ Blog post list view to fetch list of blogs of users.
+        Used JWT authentication for authorizing user."""
+    
     permission_classes = [IsAuthenticated]
+    pagination_class = MyPaginator
+    filter_backends = [MyOrderingFilter]
+    ordering_fields = ["date_published", "total_likes"]
 
     def get_serializer_class(self):
-        if self.action in ['list','update','create','partial_update']:
+        if self.action in ["list", "update", "create", "partial_update"]:
             return BlogPostListSerializer
         return BlogPostDetailSerializer
 
     def get_queryset(self):
         return BlogPost.objects.all()
-    
+
+
 class CommentListAPIView(ListAPIView):
+    """Comment list view for listing out comments"""
+
     serializer_class = BlogPostWithComments
 
     def get_queryset(self):
-        blog_post_id = self.kwargs['blog_post_id']
+        blog_post_id = self.kwargs["blog_post_id"]
         return UserComments.objects.filter(post_id=blog_post_id)
-    
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom view for obtaining a pair of JWT tokens (access and refresh).
+    This view uses the custom serializer to include additional data in the token.
+    """
+
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+
+
+
+
+
+
+
+
 
 class BlogPostListingView(LoginRequiredMixin, ListView):
     """This view is used to list all the blogs"""
@@ -64,9 +96,7 @@ class BlogDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         post = self.get_object()
         context["likes_count"] = post.likes.count()
-        context["user_liked"] = post.likes.filter(
-            user=self.request.user
-        ).exists()  
+        context["user_liked"] = post.likes.filter(user=self.request.user).exists()
         return context
 
 
@@ -80,7 +110,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form) 
+        return super().form_valid(form)
 
 
 class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

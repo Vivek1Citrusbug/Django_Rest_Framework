@@ -1,61 +1,75 @@
-from rest_framework import serializers # type: ignore
+from rest_framework import serializers  # type: ignore
 from blogs.models import BlogPost
 from comments.models import UserComments
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 from likes.models import Like
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class BlogPostWithComments(serializers.ModelSerializer):
-    
-    user_name = serializers.StringRelatedField(source='user_id.username', read_only=True)
-    
+
+    user_name = serializers.StringRelatedField(
+        source="user_id.username", read_only=True
+    )
+
     class Meta:
         model = UserComments
-        fields = ['user_name','content','date_posted']
-        read_only_fields = ['user_name','date_posted']
+        fields = ["user_name", "content", "date_posted"]
+        read_only_fields = ["user_name", "date_posted"]
+
 
 class BlogPostLikeSerializer(serializers.ModelSerializer):
-        
+
     class Meta:
         model = Like
-        fields = ['user','created_at']
-        read_only_fields = ['user','created_at']
+        fields = ["user", "created_at"]
+        read_only_fields = ["user", "created_at"]
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Custom Token serializer to include username, id, and email in the token.
+    """
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['email'] = user.email
+        token['firstname'] = user.first_name
+        token['lastname'] = user.last_name
+        return token
+    
 class BlogPostDetailSerializer(serializers.ModelSerializer):
-    #used nested serializer for comments.
-    comments = BlogPostWithComments(many = True)
-    # likes = serializers.SerializerMethodField()
-    likes = BlogPostLikeSerializer(many = True)
+
+    comments = BlogPostWithComments(many=True)
+    likes = BlogPostLikeSerializer(many=True)
     author = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
-        fields = ['title','content','author','likes','comments']
-        read_only_fields = ['comments','likes']
+        fields = ["title", "content", "author", "likes", "comments"]
+        read_only_fields = ["comments", "likes"]
 
-    # def get_likes(self,obj):
-    #     total_likes = Like.objects.filter(post = obj.id).count()
-    #     return total_likes
-    
-    def get_author(self,obj):
-        return BlogPost.objects.get(id = obj.id).author.username
-    
+    def get_author(self, obj):
+        return BlogPost.objects.get(id=obj.id).author.username
+
+
 class BlogPostListSerializer(serializers.ModelSerializer):
 
     created_by = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
-        fields = ['title','content','created_by']
-        read_only_fields = ['created_by'] 
-         
-    def create(self, validated_data):
-        request = self.context.get('request')  
-        validated_data['author'] = request.user 
-        return super().create(validated_data)
-    
-    def get_created_by(self,obj):
-        post = BlogPost.objects.get(id = obj.id)
-        return f"{post.author} : {post.author.email} On {post.date_published.strftime('%Y-%m-%d %H:%M:%S')}"
-    
+        fields = ["title", "content", "created_by"]
+        read_only_fields = ["created_by"]
 
+    def create(self, validated_data):
+        request = self.context.get("request")
+        validated_data["author"] = request.user
+        return super().create(validated_data)
+
+    def get_created_by(self, obj):
+        post = BlogPost.objects.get(id=obj.id)
+        return f"{post.author} : {post.author.email} On {post.date_published.strftime('%Y-%m-%d %H:%M:%S')}"

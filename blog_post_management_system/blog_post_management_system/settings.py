@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap5',
     'rest_framework',
+    'django_filters',
+    'rest_framework_simplejwt',
 ]
 
 EXTERNAL_APPS = [
@@ -91,12 +93,14 @@ WSGI_APPLICATION = 'blog_post_management_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog_post_database',
-        'USER': 'postgres',
-        'PASSWORD': 'vivek',
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': 'blog_post_database',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'vivek',
+        # 'HOST': '127.0.0.1',
+        # 'PORT': '5433',
     }
 }
 
@@ -147,6 +151,16 @@ MEDIA_ROOT = BASE_DIR/ 'static'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "EXCEPTION_HANDLER": "blogs.general.api_exception_handler",
+}
+
 
 LOGGING = {
     "version": 1,
