@@ -25,7 +25,7 @@ from rest_framework.routers import DefaultRouter
 from blogs.views import BlogPostListingAPIView,CommentListAPIView,CustomTokenObtainPairView
 
 router = DefaultRouter()
-router.register(r'Blogs',BlogPostListingAPIView,basename='blogpost')
+router.register(r'blogs',BlogPostListingAPIView,basename='blogpost')
 
 
 urlpatterns = [
