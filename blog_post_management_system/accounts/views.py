@@ -14,6 +14,50 @@ from .forms import UserProfileForm
 from django.contrib import messages
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from accounts.serializers import UserSerializer, UserDetailSerializer
+from accounts.permission import MyCustomPermission
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
+
+##########   User Listing APIs    #############
+
+
+class UserListAPIView(ReadOnlyModelViewSet):
+    """
+    List users accourding to given permissions
+    """
+
+    serializer_class = UserSerializer
+    permission_classes = [MyCustomPermission]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser:
+            return User.objects.all()
+
+        if user.is_staff:
+            return User.objects.filter(is_staff=True, is_superuser=False)
+
+        return User.objects.filter(id=user.id)
+
+
+class UserDetailAPIView(RetrieveAPIView):
+    """
+    List perticular user details according to given permissions
+    """
+
+    serializer_class = UserDetailSerializer
+    permission_classes = [MyCustomPermission]
+    # queryset = User.objects.all()
+
+    def get_object(self):
+        """
+        Override this method to retrieve the user based on the primary key
+        (typically 'id' from the URL).
+        """
+        return self.get_queryset().get(id=self.kwargs["pk"])
 
 
 class RegistrationView(FormView):

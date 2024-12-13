@@ -29,6 +29,7 @@ from blogs.views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
 )
+from accounts.views import UserListAPIView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -37,7 +38,7 @@ from drf_spectacular.views import (
 
 router = DefaultRouter()
 router.register(r"blogs", BlogPostListingAPIView, basename="blogpost")
-
+router.register(r'users', UserListAPIView, basename='user')
 
 urlpatterns = [
     path("", views.home_page, name="home_page"),
@@ -48,23 +49,11 @@ urlpatterns = [
     path("blogs/", include("blogs.urls")),
     path("api/", include(router.urls)),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path(
-        "api/schema/swagger-ui/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),
-    path(
-        "api/schema/redoc/",
-        SpectacularRedocView.as_view(url_name="schema"),
-        name="redoc",
-    ),
+    path("api/schema/swagger-ui/",SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui",),
+    path("api/schema/redoc/",SpectacularRedocView.as_view(url_name="schema"),name="redoc",),
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
-    path(
-        "api/Blogs/<int:blog_post_id>/comments/",
-        CommentListAPIView.as_view(),
-        name="comment-list",
-    ),
+    path("api/Blogs/<int:blog_post_id>/comments/",CommentListAPIView.as_view(),name="comment-list",),
 ]
 
 if settings.DEBUG:
