@@ -9,6 +9,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class BlogPostWithComments(serializers.ModelSerializer):
+    """
+    Serializer used for printing comment list
+    """
 
     user_name = serializers.StringRelatedField(
         source="user_id.username", read_only=True
@@ -21,11 +24,15 @@ class BlogPostWithComments(serializers.ModelSerializer):
 
 
 class BlogPostLikeSerializer(serializers.ModelSerializer):
+    """
+    Setializer used for printing likes list
+    """
 
     class Meta:
         model = Like
         fields = ["user", "created_at"]
         read_only_fields = ["user", "created_at"]
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
@@ -35,13 +42,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username
-        token['email'] = user.email
-        token['firstname'] = user.first_name
-        token['lastname'] = user.last_name
+        token["username"] = user.username
+        token["email"] = user.email
+        token["firstname"] = user.first_name
+        token["lastname"] = user.last_name
         return token
-    
+
+
 class BlogPostDetailSerializer(serializers.ModelSerializer):
+    """
+    This serializer is used to list the details perticular blog.
+    """
 
     comments = BlogPostWithComments(many=True)
     likes = BlogPostLikeSerializer(many=True)
@@ -57,6 +68,9 @@ class BlogPostDetailSerializer(serializers.ModelSerializer):
 
 
 class BlogPostListSerializer(serializers.ModelSerializer):
+    """
+    This serializer is used for listing blog posts
+    """
 
     created_by = serializers.SerializerMethodField()
 
