@@ -30,6 +30,7 @@ from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from blogs.general import MyPaginator, MyOrderingFilter
 from blogs.serializers import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from blogs.general import api_exception_handler
 
 class BlogPostListingAPIView(ModelViewSet):
     """ Blog post list view to fetch list of blogs of users.
@@ -65,15 +66,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """
 
     serializer_class = CustomTokenObtainPairSerializer
-
-
-
-
-
-
-
-
-
 
 
 class BlogPostListingView(LoginRequiredMixin, ListView):
